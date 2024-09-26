@@ -53,7 +53,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
     global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory
     # Time tracking
-    start_time = time.time()
+    start_time = time.perf_counter()
     # Start profiling, MMH
     with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof: #MMH
         if hasattr(model, "autograd_grad_sample_hooks"):
@@ -81,7 +81,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
         model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
     
     # End time tracking
-    end_time = time.time()
+    end_time = time.perf_counter()
 
     # Accumulate FLOPS, time, and memory usage
     prepare_sample_grad_or_norm_flops += sum([event.flops for event in prof.key_averages()])
