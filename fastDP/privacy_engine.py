@@ -91,9 +91,10 @@ class PrivacyEngine(object):
                 ['_embeddings','wte','wpe'] is used for roberta and GPT2. For general model, can set to first layer's bias or weight.
             clipping_style: The clipping style to use. One of 'all-layer', 'layer-wise', 'param-wise' or an un-ordered list of layer names that represent blocks' head layer
         """
+        print("Hello from __init__ function of privacy_engine file.")
         del unused_kwargs
         super(PrivacyEngine, self).__init__()
-
+        print("Checking clipping modes and accounting methods")
         if clipping_mode not in ['ghost','MixGhostClip','MixOpt']:
             raise ValueError(f"Unknown clipping mode {clipping_mode}. Expected one of 'ghost','MixGhostClip','MixOpt'.")
         if accounting_mode not in ("rdp", "all",'glw'):
@@ -172,8 +173,10 @@ class PrivacyEngine(object):
         if origin_params!=None:
             print('Using origin parameters for the ghost differentiation trick......')
 
+        print("Hello from __init__ function of privacy_engine file, last.")
         #-----
-        def _supported_and_trainable(layer):            
+        def _supported_and_trainable(layer):
+            print("Hello from _supported_and_trainable function of privacy_engine file.")
             if type(layer) in _supported_layers_norm_sample_AND_clipping and ((hasattr(layer,'weight') and hasattr(layer.weight,'initially_requires_grad') and layer.weight.initially_requires_grad) or (hasattr(layer,'bias') and hasattr(layer.bias,'initially_requires_grad') and layer.bias.initially_requires_grad)):
                 return True
             return False
@@ -192,6 +195,7 @@ class PrivacyEngine(object):
         print("Number of trainable components: ",self.n_components, "; Number of trainable layers: ",self.n_layers)
 
 
+        print("Hello from line 198 function of privacy_engine file.")
         #-----
         print('>>>>>>>>>>>>>>>>> Applying ',clipping_fn, ' per-sample gradient clipping.')
         self.clipping_fn = clipping_fn
@@ -235,6 +239,7 @@ class PrivacyEngine(object):
         
         # create list of block head layers        
         if isinstance(clipping_style,list):
+            print("You are in 242 line in privacy engine file")
             self.clipping_style='block-wise'
             self.block_heads=clipping_style
         else:            
@@ -317,6 +322,7 @@ class PrivacyEngine(object):
         self._locked = False
 
     def attach(self, optimizer):
+        print("Hello from attach function of privacy engine file")
         # Override step.
         def dp_step(_self, **kwargs):
             closure = kwargs.pop("closure", None)
@@ -368,6 +374,7 @@ class PrivacyEngine(object):
 
                     
     def _create_noisy_clipped_gradient(self):
+        print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
         """Create noisy clipped gradient for `optimizer.step`."""
         
         unsupported_param_name=[]
