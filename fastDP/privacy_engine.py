@@ -253,7 +253,7 @@ class PrivacyEngine(object):
         print(">>>>>>>>>>>>>>>>> Block heads for per-sample gradient clipping are defined as:", self.block_heads)
 
         transformers_support.forward_swapper(module=module)  # fix the position embeddings broadcast issue.
-
+        print("ADD HOOKS function")
         autograd_grad_sample.add_hooks(model=self.module, loss_reduction=self.loss_reduction, 
                                        clipping_mode=self.clipping_mode, bias_only=self.bias_only,
                                        clipping_style=self.clipping_style, block_heads=self.block_heads,
@@ -374,7 +374,7 @@ class PrivacyEngine(object):
 
                     
     def _create_noisy_clipped_gradient(self):
-        print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
+        #print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
         """Create noisy clipped gradient for `optimizer.step`."""
         
         unsupported_param_name=[]
