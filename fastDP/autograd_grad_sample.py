@@ -43,31 +43,35 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     Args:
         model: Model to which hooks are added.
     """
-    print("You are now in add_hooks function of autograd_grad_sample file")
-    if hasattr(model, "autograd_grad_sample_hooks"):
-        raise ValueError("Trying to add hooks twice to the same model")
-
-    handles = []
-
-    for name, layer in model.named_modules():
-        if type(layer) in _supported_layers_norm_sample_AND_clipping and requires_grad(layer):
-            if hasattr(layer.weight,'initially_requires_grad') and layer.weight.initially_requires_grad:
-                #print('Attaching forward hook on', name)
-                handles.append(layer.register_forward_hook(_capture_activations))
-                
-            if name in block_heads:
-                def this_backward(this_layer, grad_input, grad_output):
-                    _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
-                    _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise)
-            else:
-                def this_backward(this_layer, grad_input, grad_output):
-                    _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
-
-            # Starting with 1.8.0, can use `register_full_backward_hook`, but slower
-            handles.append(layer.register_backward_hook(this_backward))            
-    print("You are now in add_hooks function of autograd_grad_sample file")
-    model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
-
+    print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
+    # Start profiling
+    with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof:
+        if hasattr(model, "autograd_grad_sample_hooks"):
+            raise ValueError("Trying to add hooks twice to the same model")
+    
+        handles = []
+    
+        for name, layer in model.named_modules():
+            if type(layer) in _supported_layers_norm_sample_AND_clipping and requires_grad(layer):
+                if hasattr(layer.weight,'initially_requires_grad') and layer.weight.initially_requires_grad:
+                    #print('Attaching forward hook on', name)
+                    handles.append(layer.register_forward_hook(_capture_activations))
+                    
+                if name in block_heads:
+                    def this_backward(this_layer, grad_input, grad_output):
+                        _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
+                        _per_block_clip_grad(this_layer, named_params, named_layers, clipping_style, clipping_fn, numerical_stability_constant, max_grad_norm_layerwise)
+                else:
+                    def this_backward(this_layer, grad_input, grad_output):
+                        _prepare_sample_grad_or_norm(this_layer, grad_output, loss_reduction, clipping_mode,bias_only)
+    
+                # Starting with 1.8.0, can use `register_full_backward_hook`, but slower
+                handles.append(layer.register_backward_hook(this_backward))            
+        print("You are now in add_hooks function of autograd_grad_sample file")
+        model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
+    # Print profiler results
+    print(prof.key_averages().table(sort_by="self_cpu_time_total"))
+    print("FLOPS:", prof.total_average().flops)
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
@@ -214,5 +218,5 @@ def _per_block_clip_grad(
           if hasattr(param,'norm_sample'):
               del param.norm_sample
     # Print profiler results
-    print(prof.key_averages().table(sort_by="self_cpu_time_total"))
-    print("FLOPS:", prof.total_average().flops)
+    #print(prof.key_averages().table(sort_by="self_cpu_time_total"))
+    #print("FLOPS:", prof.total_average().flops)
