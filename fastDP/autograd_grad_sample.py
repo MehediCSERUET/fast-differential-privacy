@@ -23,6 +23,7 @@ def requires_grad(module: nn.Module) -> bool:
     Returns:
         Flag indicate if any parameters require gradients
     """
+    print("You are now in requires_grad function of autograd_grad_sample file")
     return any(p.initially_requires_grad for p in module.parameters() if hasattr(p,'initially_requires_grad'))
 
 
@@ -42,6 +43,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     Args:
         model: Model to which hooks are added.
     """
+    print("You are now in add_hooks function of autograd_grad_sample file")
     if hasattr(model, "autograd_grad_sample_hooks"):
         raise ValueError("Trying to add hooks twice to the same model")
 
@@ -69,6 +71,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
+    print("Remove hook function of autograd_grad_sample")
     for handle in model.autograd_grad_sample_hooks:
         handle.remove()
     del model.autograd_grad_sample_hooks
@@ -76,6 +79,7 @@ def remove_hooks(model: nn.Module):
 
 def _capture_activations(layer: nn.Module, inputs: Tuple, outputs: Tuple):
     """Forward hook handler captures AND saves activations."""
+    print("Capture_activations function in autograd_grad_sample")
     layer.activations=inputs[0].detach()
 
 def _prepare_sample_grad_or_norm(
@@ -86,6 +90,7 @@ def _prepare_sample_grad_or_norm(
     bias_only=False,
     ):
     """Backward hook handler captures AND saves grad_outputs (book-keeping)."""
+    print("_prepare_sample_grad_or_norm function in autograd_grad_sample file")
     backprops = grad_output[0].detach()
 
     """Computes per-sample grad norm or grad for individual layers."""
@@ -104,7 +109,7 @@ def _per_block_clip_grad(
     layer: nn.Module, named_params, named_layers, clipping_style, clipping_fn,
     numerical_stability_constant,max_grad_norm_layerwise
     ):
-    
+    print("_per_block_clip_grad function in autograd_grad_sample file")
     if clipping_style not in ['layer-wise','param-wise']:
 
         norm_sample = torch.stack([param.norm_sample for name, param in named_params if hasattr(param,'norm_sample')], dim=0).norm(2, dim=0)
