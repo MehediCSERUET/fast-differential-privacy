@@ -106,8 +106,8 @@ def _prepare_sample_grad_or_norm(
     
         layer.backprops=backprops
     # Print profiler results
-    print(prof.key_averages().table(sort_by="self_cpu_time_total"))
-    print("FLOPS:", prof.total_average().flops)
+    #print(prof.key_averages().table(sort_by="self_cpu_time_total"))
+    #print("FLOPS:", prof.total_average().flops)
 
 
 def _per_block_clip_grad(
