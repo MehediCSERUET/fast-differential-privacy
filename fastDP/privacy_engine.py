@@ -376,7 +376,9 @@ class PrivacyEngine(object):
                     
     def _create_noisy_clipped_gradient(self):
         #print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
-        print("FLOPS during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops())
+        print("FLOPS during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[0])
+        print("Time(milli sec) during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[1])
+        print("Memory(bytes) during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[2])
         """Create noisy clipped gradient for `optimizer.step`."""
         
         unsupported_param_name=[]
