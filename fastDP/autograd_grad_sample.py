@@ -231,5 +231,5 @@ def _per_block_clip_grad(
           if hasattr(param,'norm_sample'):
               del param.norm_sample
     # Print profiler results
-    print(prof.key_averages().table(sort_by="self_cpu_time_total"))
-    print("FLOPS:", prof.total_average().flops)
+    #print(prof.key_averages().table(sort_by="self_cpu_time_total"))
+    #print("FLOPS:", prof.total_average().flops)
