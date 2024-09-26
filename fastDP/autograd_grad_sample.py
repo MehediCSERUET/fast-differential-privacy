@@ -13,6 +13,9 @@ import torch.nn as nn
 
 from .supported_layers_grad_samplers import _supported_layers_norm_sample_AND_clipping,_create_or_extend_private_grad
 
+# To store cumulative FLOPS
+per_block_clip_grad_flops = 0
+
 def requires_grad(module: nn.Module) -> bool:
     """
     Checks if any parameters in a specified module require gradients.
@@ -43,9 +46,11 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     Args:
         model: Model to which hooks are added.
     """
+    #MMH
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
-    # Start profiling
-    with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof:
+    global per_block_clip_grad_flops
+    # Start profiling, MMH
+    with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof: #MMH
         if hasattr(model, "autograd_grad_sample_hooks"):
             raise ValueError("Trying to add hooks twice to the same model")
     
@@ -69,9 +74,11 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
                 handles.append(layer.register_backward_hook(this_backward))            
         print("You are now in add_hooks function of autograd_grad_sample file")
         model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
-    # Print profiler results
-    print(prof.key_averages().table(sort_by="self_cpu_time_total"))
-    print("FLOPS:", prof.total_average().flops)
+    # Accumulate FLOPS MMH
+    per_block_clip_grad_flops += sum([event.flops for event in prof.key_averages()])
+#MMH
+def get_per_block_clip_grad_flops():
+    return per_block_clip_grad_flops
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
