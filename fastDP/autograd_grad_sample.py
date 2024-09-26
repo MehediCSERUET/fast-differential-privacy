@@ -52,6 +52,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     """
     #MMH
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
+    
     global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, mmh
     # Time tracking
     start_time = time.perf_counter()
@@ -63,6 +64,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
         handles = []
     
         for name, layer in model.named_modules():
+            mmh += 1
             if type(layer) in _supported_layers_norm_sample_AND_clipping and requires_grad(layer):
                 if hasattr(layer.weight,'initially_requires_grad') and layer.weight.initially_requires_grad:
                     #print('Attaching forward hook on', name)
@@ -87,7 +89,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     # Accumulate FLOPS, time, and memory usage
     prepare_sample_grad_or_norm_flops += sum([event.flops for event in prof.key_averages()])
     prepare_sample_grad_or_norm_time += (end_time - start_time) * 1000  # Convert to milliseconds
-    mmh += 1
+   
 
     # Get memory stats
     if torch.cuda.is_available():
