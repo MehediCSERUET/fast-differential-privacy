@@ -13,8 +13,10 @@ import torch.nn as nn
 
 from .supported_layers_grad_samplers import _supported_layers_norm_sample_AND_clipping,_create_or_extend_private_grad
 
-# To store cumulative FLOPS
-per_block_clip_grad_flops = 0
+# To store cumulative FLOPS, time, and memory usage
+prepare_sample_grad_or_norm_flops = 0
+prepare_sample_grad_or_norm_time = 0
+prepare_sample_grad_or_norm_memory = 0
 
 def requires_grad(module: nn.Module) -> bool:
     """
@@ -48,7 +50,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     """
     #MMH
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
-    global per_block_clip_grad_flops
+    global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory
     # Start profiling, MMH
     with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof: #MMH
         if hasattr(model, "autograd_grad_sample_hooks"):
@@ -74,11 +76,15 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
                 handles.append(layer.register_backward_hook(this_backward))            
         print("You are now in add_hooks function of autograd_grad_sample file")
         model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
-    # Accumulate FLOPS MMH
-    per_block_clip_grad_flops += sum([event.flops for event in prof.key_averages()])
+    
+    # Accumulate FLOPS, time, and memory usage
+    prepare_sample_grad_or_norm_flops += sum([event.flops for event in prof.key_averages()])
+    prepare_sample_grad_or_norm_time += prof.self_cpu_time_total / 1000  # Convert to milliseconds
+    prepare_sample_grad_or_norm_memory += prof.self_cpu_memory_usage  # Memory usage in bytes
+                  
 #MMH
 def get_per_block_clip_grad_flops():
-    return per_block_clip_grad_flops
+    return [per_block_clip_grad_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory]
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
