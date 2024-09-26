@@ -10,6 +10,7 @@ from typing import Tuple
 
 import torch
 import torch.nn as nn
+import time
 
 from .supported_layers_grad_samplers import _supported_layers_norm_sample_AND_clipping,_create_or_extend_private_grad
 
@@ -51,6 +52,8 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     #MMH
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
     global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory
+    # Time tracking
+    start_time = time.time()
     # Start profiling, MMH
     with torch.autograd.profiler.profile(use_cuda=torch.cuda.is_available()) as prof: #MMH
         if hasattr(model, "autograd_grad_sample_hooks"):
@@ -77,10 +80,18 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
         print("You are now in add_hooks function of autograd_grad_sample file")
         model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
     
+    # End time tracking
+    end_time = time.time()
+
     # Accumulate FLOPS, time, and memory usage
     prepare_sample_grad_or_norm_flops += sum([event.flops for event in prof.key_averages()])
-    prepare_sample_grad_or_norm_time += prof.self_cpu_time_total / 1000  # Convert to milliseconds
-    prepare_sample_grad_or_norm_memory += prof.self_cpu_memory_usage  # Memory usage in bytes
+    prepare_sample_grad_or_norm_time += (end_time - start_time) * 1000  # Convert to milliseconds
+
+    # Get memory stats
+    if torch.cuda.is_available():
+        prepare_sample_grad_or_norm_memory += torch.cuda.memory_allocated()  # Memory in bytes (CUDA)
+    else:
+        prepare_sample_grad_or_norm_memory += torch.cuda.memory_allocated()  # Use this even for CPU tracking
                   
 #MMH
 def get_per_block_clip_grad_flops():
