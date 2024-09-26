@@ -379,6 +379,7 @@ class PrivacyEngine(object):
         print("FLOPS during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[0])
         print("Time(milli sec) during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[1])
         print("Memory(bytes) during a step is ", autograd_grad_sample.get_per_block_clip_grad_flops()[2])
+        autograd_grad_sample.reset_stats()
         """Create noisy clipped gradient for `optimizer.step`."""
         
         unsupported_param_name=[]
