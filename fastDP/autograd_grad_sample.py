@@ -90,7 +90,7 @@ def _prepare_sample_grad_or_norm(
     bias_only=False,
     ):
     """Backward hook handler captures AND saves grad_outputs (book-keeping)."""
-    #print("_prepare_sample_grad_or_norm function in autograd_grad_sample file")
+    print("_prepare_sample_grad_or_norm function in autograd_grad_sample file")
     backprops = grad_output[0].detach()
 
     """Computes per-sample grad norm or grad for individual layers."""
@@ -109,7 +109,7 @@ def _per_block_clip_grad(
     layer: nn.Module, named_params, named_layers, clipping_style, clipping_fn,
     numerical_stability_constant,max_grad_norm_layerwise
     ):
-    #print("_per_block_clip_grad function in autograd_grad_sample file")
+    print("_per_block_clip_grad function in autograd_grad_sample file")
     if clipping_style not in ['layer-wise','param-wise']:
 
         norm_sample = torch.stack([param.norm_sample for name, param in named_params if hasattr(param,'norm_sample')], dim=0).norm(2, dim=0)
