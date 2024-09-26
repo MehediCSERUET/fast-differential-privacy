@@ -90,7 +90,7 @@ def _prepare_sample_grad_or_norm(
     bias_only=False,
     ):
     """Backward hook handler captures AND saves grad_outputs (book-keeping)."""
-    print("_prepare_sample_grad_or_norm function in autograd_grad_sample file")
+    #print("_prepare_sample_grad_or_norm function in autograd_grad_sample file")
     backprops = grad_output[0].detach()
 
     """Computes per-sample grad norm or grad for individual layers."""
