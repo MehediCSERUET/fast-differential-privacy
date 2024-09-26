@@ -282,6 +282,7 @@ class PrivacyEngine(object):
             from deepspeed import comm as dist
     
             def reduce_gradients_DP_stage_1(self, pipeline_parallel=False):
+                print("Deepseed zero function reduce gradients dp stage")
                 world_size = dist.get_world_size(self.dp_process_group)
                 my_rank = dist.get_rank(self.dp_process_group)
     
@@ -374,7 +375,7 @@ class PrivacyEngine(object):
 
                     
     def _create_noisy_clipped_gradient(self):
-        #print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
+        print("Hello from _create_noisy_clipped_gradient function of privacy engine file")
         """Create noisy clipped gradient for `optimizer.step`."""
         
         unsupported_param_name=[]
