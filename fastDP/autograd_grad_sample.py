@@ -18,7 +18,7 @@ from .supported_layers_grad_samplers import _supported_layers_norm_sample_AND_cl
 prepare_sample_grad_or_norm_flops = 0
 prepare_sample_grad_or_norm_time = 0
 prepare_sample_grad_or_norm_memory = 0
-MMH = 0
+mmh = 0
 
 def requires_grad(module: nn.Module) -> bool:
     """
@@ -52,7 +52,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     """
     #MMH
     print("You are now in add_hooks function of autograd_grad_sample file\nStarting profiling")
-    global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, MMH
+    global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, mmh
     # Time tracking
     start_time = time.perf_counter()
     # Start profiling, MMH
@@ -87,7 +87,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
     # Accumulate FLOPS, time, and memory usage
     prepare_sample_grad_or_norm_flops += sum([event.flops for event in prof.key_averages()])
     prepare_sample_grad_or_norm_time += (end_time - start_time) * 1000  # Convert to milliseconds
-    MMH += 1
+    mmh += 1
 
     # Get memory stats
     if torch.cuda.is_available():
@@ -97,14 +97,14 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
                   
 #MMH
 def get_per_block_clip_grad_flops():
-    return [prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, MMH]
+    return [prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, mmh]
 
 def reset_stats():
     global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory
     prepare_sample_grad_or_norm_flops = 0
     prepare_sample_grad_or_norm_time = 0
     prepare_sample_grad_or_norm_memory = 0
-    MMH = 0
+    mmh = 0
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
