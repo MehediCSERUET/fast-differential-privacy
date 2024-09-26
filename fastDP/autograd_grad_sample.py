@@ -65,7 +65,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
 
             # Starting with 1.8.0, can use `register_full_backward_hook`, but slower
             handles.append(layer.register_backward_hook(this_backward))            
-
+    print("You are now in add_hooks function of autograd_grad_sample file")
     model.__dict__.setdefault("autograd_grad_sample_hooks", []).extend(handles)
 
 
@@ -109,7 +109,7 @@ def _per_block_clip_grad(
     layer: nn.Module, named_params, named_layers, clipping_style, clipping_fn,
     numerical_stability_constant,max_grad_norm_layerwise
     ):
-    print("_per_block_clip_grad function in autograd_grad_sample file")
+    #print("_per_block_clip_grad function in autograd_grad_sample file")
     if clipping_style not in ['layer-wise','param-wise']:
 
         norm_sample = torch.stack([param.norm_sample for name, param in named_params if hasattr(param,'norm_sample')], dim=0).norm(2, dim=0)
