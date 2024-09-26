@@ -97,6 +97,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
                   
 #MMH
 def get_per_block_clip_grad_flops():
+    global prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, mmh
     return [prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory, mmh]
 
 def reset_stats():
