@@ -95,7 +95,7 @@ def add_hooks(model: nn.Module, loss_reduction='mean', clipping_mode='MixOpt',bi
                   
 #MMH
 def get_per_block_clip_grad_flops():
-    return [per_block_clip_grad_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory]
+    return [prepare_sample_grad_or_norm_flops, prepare_sample_grad_or_norm_time, prepare_sample_grad_or_norm_memory]
 
 def remove_hooks(model: nn.Module):
     """Removes hooks added by `add_hooks()`."""
