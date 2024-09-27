@@ -456,7 +456,7 @@ class PrivacyEngine(object):
                 )
                 if not lenient:
                     raise err
-
+        print(privacy_results)
         return privacy_results
 
     def get_training_stats(self):
