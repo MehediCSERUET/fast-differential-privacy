@@ -119,7 +119,7 @@ def remove_hooks(model: nn.Module):
 
 def _capture_activations(layer: nn.Module, inputs: Tuple, outputs: Tuple):
     """Forward hook handler captures AND saves activations."""
-    print("Capture_activations function in autograd_grad_sample")
+    #print("Capture_activations function in autograd_grad_sample")
     layer.activations=inputs[0].detach()
 
 def _prepare_sample_grad_or_norm(
